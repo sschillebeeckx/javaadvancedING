@@ -1,0 +1,56 @@
+package be.abis.exercise.test;
+
+
+import be.abis.exercise.exception.PersonNotFoundException;
+import be.abis.exercise.exception.SalaryTooLowException;
+import be.abis.exercise.model.Person;
+import be.abis.exercise.repository.PersonRepository;
+import be.abis.exercise.service.AbisPaymentService;
+import be.abis.exercise.service.PaymentService;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import static org.junit.Assert.assertThrows;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class PaymentServiceTest {
+
+    @InjectMocks
+    static PaymentService ps;
+
+    @Mock
+    Person person;
+
+    @Mock
+    PersonRepository pr;
+
+    @BeforeClass
+    public static void setUp(){
+        ps = AbisPaymentService.getInstance();
+    }
+
+    @Test
+    public void payingSalaryUnder1500shouldThrowException() throws SalaryTooLowException, PersonNotFoundException {
+        when(person.calculateNetSalary()).thenThrow(SalaryTooLowException.class);
+        //when(pr.findPersonById(anyInt())).thenReturn(person);
+        assertThrows(SalaryTooLowException.class,()->ps.paySalary(1));
+    }
+
+    @Test
+    public void payingSalaryPrintsThings() throws SalaryTooLowException, PersonNotFoundException {
+        when(person.calculateNetSalary()).thenReturn(1600.0);
+        when(person.getFirstName()).thenReturn("John");
+        when(pr.findPersonById(anyInt())).thenReturn(person);
+        ps.paySalary(1);
+    }
+
+
+
+}
